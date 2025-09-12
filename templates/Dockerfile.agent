@@ -1,0 +1,33 @@
+FROM ubuntu:22.04
+
+USER root
+
+# Install essentials
+RUN apt-get update && apt-get install -y \
+    sudo openssh-server docker.io curl python3 python3-pip \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create SSH runtime dir
+RUN mkdir -p /run/sshd
+
+# Create user for SSH with sudo
+RUN useradd -ms /bin/bash deployer \
+    && echo 'deployer ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+
+# Setup SSH for deployer
+RUN mkdir -p /home/deployer/.ssh && \
+    chown deployer:deployer /home/deployer/.ssh && \
+    chmod 700 /home/deployer/.ssh
+
+COPY files/id_rsa_genericuser.pub /home/deployer/.ssh/authorized_keys
+RUN chown deployer:deployer /home/deployer/.ssh/authorized_keys && \
+    chmod 600 /home/deployer/.ssh/authorized_keys
+
+# Generate host keys
+RUN ssh-keygen -A
+
+# Expose SSH port
+EXPOSE 22
+
+# Start SSH service
+CMD ["/usr/sbin/sshd", "-D"]

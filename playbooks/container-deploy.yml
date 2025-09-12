@@ -1,0 +1,22 @@
+---
+- name: Step 5 - Deploy applicazione sul target container
+  hosts: target
+  become: true
+  tasks:
+    - name: Assicurati che Docker sia installato
+      ansible.builtin.command: which docker
+      register: docker_check
+      ignore_errors: yes
+
+    - name: Fallisci se Docker non è installato
+      ansible.builtin.fail:
+        msg: "Docker non trovato nel target! Controlla il Dockerfile.agent"
+      when: docker_check.rc != 0
+
+    - name: Stop e rimuovi container esistente (se c'è)
+      ansible.builtin.command: docker rm -f myapp
+      ignore_errors: yes
+
+    - name: Avvia nuova versione del container
+      ansible.builtin.command: >
+        docker run -d --name myapp -p 8080:80 {{ image }}
