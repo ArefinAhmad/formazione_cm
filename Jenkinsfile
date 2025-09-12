@@ -1,8 +1,8 @@
 pipeline {
-  agent any
+  agent { label 'agent1' }  // usa il nodo agent1
   environment {
-    registry = "localhost:5000"
-    imageName = "myapp"   // sostituisci con il nome della tua app Dockerfile
+    registry = "host.docker.internal:5000"  // su Mac Docker Desktop
+    imageName = "myapp"
     WORKDIR = "formazione_cm"
   }
   stages {
@@ -17,17 +17,20 @@ pipeline {
     stage('Build Image') {
       steps {
         dir("${WORKDIR}") {
-          // usa il Dockerfile che vuoi (qui un esempio generico)
-          sh "docker build -t ${registry}/${imageName}:${BUILD_NUMBER} -f templates/Dockerfile.ubuntu ."
+          sh """
+            docker build -t ${registry}/${imageName}:${BUILD_NUMBER} -f templates/Dockerfile.ubuntu .
+            docker tag ${registry}/${imageName}:${BUILD_NUMBER} ${registry}/${imageName}:latest
+          """
         }
       }
     }
     stage('Push Image') {
       steps {
         dir("${WORKDIR}") {
-          sh "docker push ${registry}/${imageName}:${BUILD_NUMBER}"
-          sh "docker tag ${registry}/${imageName}:${BUILD_NUMBER} ${registry}/${imageName}:latest || true"
-          sh "docker push ${registry}/${imageName}:latest || true"
+          sh """
+            docker push ${registry}/${imageName}:${BUILD_NUMBER}
+            docker push ${registry}/${imageName}:latest
+          """
         }
       }
     }
@@ -35,11 +38,11 @@ pipeline {
       steps {
         dir("${WORKDIR}") {
           sh """
-            # esegui playbook deploy; inventory e chiave sono nella repo montata
-            ansible-playbook -i inventory.ini playbooks/deploy.yml -e image=${registry}/${imageName}:${BUILD_NUMBER}
+            ansible-playbook -i inventory.ini playbooks/deploy.yml -e image=${registry}/${imageName}:${BUILD_NUMBER} --private-key files/id_rsa_genericuser
           """
         }
       }
     }
   }
 }
+
