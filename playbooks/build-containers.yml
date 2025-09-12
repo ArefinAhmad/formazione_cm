@@ -1,0 +1,80 @@
+---
+- name: Step 2 - Build e run container SSH
+  hosts: localhost
+  tasks:
+    - name: Copia la chiave pubblica nel contesto build
+      copy:
+        src: ../files/id_rsa_genericuser.pub
+        dest: ./id_rsa_genericuser.pub
+
+    - name: Build immagine Ubuntu SSH
+      community.docker.docker_image:
+        name: ubuntu-ssh
+        build:
+          path: ../templates
+          dockerfile: Dockerfile.ubuntu
+        source: build
+
+    - name: Build immagine AlmaLinux SSH
+      community.docker.docker_image:
+        name: almalinux-ssh
+        build:
+          path: ../templates
+          dockerfile: Dockerfile.almalinux
+        source: build
+
+    - name: Run container Ubuntu SSH
+      community.docker.docker_container:
+        name: ubuntu-ssh-container
+        image: ubuntu-ssh
+        state: started
+        published_ports:
+          - "2223:22"
+
+    - name: Run container AlmaLinux SSH
+      community.docker.docker_container:
+        name: almalinux-ssh-container
+        image: almalinux-ssh
+        state: started
+        published_ports:
+          - "2224:22"
+
+  #versione con podman
+    - name: Copia la chiave pubblica nel contesto build
+      host: localhost
+      copy:
+        src: ../files/id_rsa_genericuser.pub
+        dest: ./id_rsa_genericuser.pub
+
+    - name: Build immagine Ubuntu SSH con Podman
+      containers.podman.podman_image:
+        name: ubuntu-ssh
+        build:
+          path: ../templates
+          dockerfile: Dockerfile.ubuntu
+        source: build
+
+    - name: Build immagine AlmaLinux SSH con Podman
+      containers.podman.podman_image:
+        name: almalinux-ssh
+        build:
+          path: ../templates
+          dockerfile: Dockerfile.almalinux
+        source: build
+
+    - name: Run container Ubuntu SSH con Podman
+      containers.podman.podman_container:
+        name: ubuntu-ssh-container
+        image: ubuntu-ssh
+        state: started
+        publish:
+          - "2223:22"
+
+    - name: Run container AlmaLinux SSH con Podman
+      containers.podman.podman_container:
+        name: almalinux-ssh-container
+        image: almalinux-ssh
+        state: started
+        publish:
+          - "2224:22"
+

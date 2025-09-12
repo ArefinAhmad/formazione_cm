@@ -1,0 +1,12 @@
+images:
+  - name: ubuntu-ssh
+    dockerfile: Dockerfile.ubuntu
+    port: 2223
+  - name: almalinux-ssh
+    dockerfile: Dockerfile.almalinux
+    port: 2224
+
+registry_host: "localhost"
+registry_port: 5000
+ssh_key: "../files/id_rsa_genericuser.pub"
+

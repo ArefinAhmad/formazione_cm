@@ -1,0 +1,18 @@
+---
+- name: Deploy container aggiornato
+  hosts: target_containers
+  become: true
+  tasks:
+    - name: Stop container esistente
+      containers.podman.podman_container:
+        name: myapp
+        state: absent
+
+    - name: Run nuova versione container
+      containers.podman.podman_container:
+        name: myapp
+        image: "{{ image }}"
+        state: started
+        publish:
+          - "8080:80"
+        restart_policy: always

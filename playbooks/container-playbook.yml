@@ -1,0 +1,35 @@
+---
+- name: Step 1 - Playbook gestione container
+  hosts: localhost
+  become: false
+  tasks:
+    - name: Avvia un registry docker (senza autenticazione)
+      community.docker.docker_container:
+        name: registry
+        image: registry:2
+        state: started
+        restart_policy: always
+        published_ports:
+          - "5000:5000"
+
+    - name: Pull immagine hello-world con Docker
+      community.docker.docker_image:
+        name: hello-world
+        source: pull
+
+    - name: Run container hello-world
+      community.docker.docker_container:
+        name: hello-world-container
+        image: hello-world
+        state: started
+
+    - name: Pull immagine hello-world con Podman
+      containers.podman.podman_image:
+        name: hello-world
+        source: pull
+
+    - name: Run container hello-world con Podman
+      containers.podman.podman_container:
+        name: hello-world-container
+        image: hello-world
+        state: started

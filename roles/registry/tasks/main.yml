@@ -1,0 +1,20 @@
+---
+- name: Avvia registry locale
+  when: container_engine == "docker"
+  community.docker.docker_container:
+    name: "{{ registry_name }}"
+    image: "{{ registry_image }}"
+    state: started
+    restart_policy: always
+    published_ports:
+      - "{{ registry_port }}:5000"
+
+- name: Avvia registry locale con Podman
+  when: container_engine == "podman"
+  containers.podman.podman_container:
+    name: "{{ registry_name }}"
+    image: "{{ registry_image }}"
+    state: started
+    publish:
+      - "{{ registry_port }}:5000"
+    restart_policy: always

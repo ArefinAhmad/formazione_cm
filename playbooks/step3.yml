@@ -1,0 +1,44 @@
+---
+- name: Step 3 - Registry + Build immagini + Run container
+  hosts: localhost
+
+  vars:
+    # Registry
+    registry_host: "localhost"
+    registry_port: 5000
+
+    # SSH key per i container
+    ssh_key: "../files/id_rsa_genericuser.pub"
+
+    # Lista immagini da costruire
+    images:
+      - name: ubuntu-ssh
+        dockerfile: Dockerfile.ubuntu
+        port: 2223
+      - name: almalinux-ssh
+        dockerfile: Dockerfile.almalinux
+        port: 2224
+  pre_tasks:
+    - name: Check se Docker è installato
+      command: docker --version
+      register: docker_check
+      ignore_errors: true
+
+    - name: Check se Podman è installato
+      command: podman --version
+      register: podman_check
+      ignore_errors: true
+
+    - name: Set container engine
+      set_fact:
+        container_engine: >-
+          {% if docker_check.rc == 0 %}docker{% elif podman_check.rc == 0 %}podman{% else %}none{% endif %}
+
+    - name: Fail se nessun engine trovato
+      fail:
+        msg: "Né Docker né Podman sono installati!"
+      when: container_engine == "none" 
+  roles:
+    - registry
+    - build_images
+

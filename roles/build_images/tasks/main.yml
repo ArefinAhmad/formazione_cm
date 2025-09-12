@@ -1,0 +1,88 @@
+---
+- name: Copia chiave pubblica nel contesto build
+  copy:
+    src: "{{ ssh_key }}"
+    dest: "{{ playbook_dir }}/id_rsa_genericuser.pub"
+
+# 1️⃣ Rilevo quale container engine è installato
+- name: Check se Docker è installato
+  command: docker --version
+  register: docker_check
+  ignore_errors: true
+
+- name: Check se Podman è installato
+  command: podman --version
+  register: podman_check
+  ignore_errors: true
+
+- name: Set container engine
+  set_fact:
+    container_engine: >-
+      {% if docker_check.rc == 0 %}docker{% elif podman_check.rc == 0 %}podman{% else %}none{% endif %}
+
+- name: Fail se nessun engine trovato
+  fail:
+    msg: "Né Docker né Podman sono installati!"
+  when: container_engine == "none"
+
+# 2️⃣ Build immagini
+- name: Build immagini con Docker
+  when: container_engine == "docker"
+  community.docker.docker_image:
+    name: "{{ item.name }}"
+    build:
+      path: "{{ playbook_dir }}/../templates"
+      dockerfile: "{{ item.dockerfile }}"
+    source: build
+  loop: "{{ images }}"
+
+- name: Build immagini con Podman
+  when: container_engine == "podman"
+  containers.podman.podman_image:
+    name: "{{ item.name }}"
+    tag: latest
+    path: "{{ playbook_dir }}/../templates"
+    build:
+      file: "{{ item.dockerfile }}"
+  loop: "{{ images }}"
+
+
+# 3️⃣ Tag & Push sul registry
+- name: Tag & Push immagini con Docker
+  when: container_engine == "docker"
+  community.docker.docker_image:
+    name: "{{ item.name }}"
+    repository: "{{ registry_host }}:{{ registry_port }}/{{ item.name }}"
+    tag: latest
+    push: true
+    source: local
+  loop: "{{ images }}"
+
+- name: Tag & Push immagini con Podman
+  containers.podman.podman_image:
+    name: "localhost:5000/{{ item.name }}"
+    push: true
+    
+  loop: "{{ images }}"
+
+
+# Run container SSH senza conflitto porte
+- name: Run container SSH senza conflitto porte
+  when: container_engine == "docker"
+  community.docker.docker_container:
+    name: "{{ item.name }}-container"
+    image: "{{ registry_host }}:{{ registry_port }}/{{ item.name }}"
+    state: started
+    published_ports:
+      - "{{ item.port }}:22"
+  loop: "{{ images }}"
+
+- name: Run container SSH con Podman
+  when: container_engine == "podman"
+  containers.podman.podman_container:
+    name: "{{ item.name }}-container"
+    image: "{{ registry_host }}:{{ registry_port }}/{{ item.name }}"
+    state: started
+    publish:
+      - "{{ item.port }}:22"
+  loop: "{{ images }}"
