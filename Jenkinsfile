@@ -5,9 +5,7 @@ pipeline {
         imageName = "myapp"                    // nome dell'immagine
         WORKDIR = "."              // cartella del progetto
         DOCKERFILE = "templates/Dockerfile.agent"
-        TARGET_SSH_KEY = "id_rsa_genericuser" // chiave SSH per Ansible
-        TARGET_HOST = "127.0.0.1"
-        TARGET_PORT = "2222"
+        
     }
     stages {
         stage('Checkout') {
@@ -37,11 +35,7 @@ pipeline {
                     """
                 }
             }
-            stage('Verify SSH') {
-            steps {
-                sh "nc -zv ${TARGET_HOST} ${TARGET_PORT}"
-            }
-        }
+         
         stage('Deploy with Ansible') {
             steps {
                 dir("${WORKDIR}") {
@@ -54,4 +48,5 @@ pipeline {
             }
         }
     }
+ }
 }
