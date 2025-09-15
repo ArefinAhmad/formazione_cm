@@ -38,7 +38,8 @@ pipeline {
                 sh """
                     ansible-playbook -i inventory.ini playbooks/container-deploy.yml \
                     -e image=${registry}/${imageName}:${BUILD_NUMBER} \
-                    --private-key ${TARGET_SSH_KEY}
+                    --private-key ${TARGET_SSH_KEY} \
+                    --ask-become-pass
                 """
             }
         }

@@ -1,6 +1,6 @@
 ---
 - name: Step 5 - Deploy applicazione sul target container
-  hosts: target
+  hosts: localhost
   become: true
   tasks:
     - name: Assicurati che Docker sia installato
