@@ -20,4 +20,4 @@ RUN curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubec
 RUN curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
 USER jenkins
-
+# 4cc18731e974198be8a18fb017b6906fa2c3aa5daacd25f614400124f8cb07d2
