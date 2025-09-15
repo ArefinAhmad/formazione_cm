@@ -14,16 +14,14 @@
       when: docker_check.rc != 0
 
     - name: Stop e rimuovi container esistente (se c'è)
-      ansible.builtin.command: docker rm -f myapp
+      ansible.builtin.command: docker rm -f my-container
       ignore_errors: yes
 
-   # - name: Avvia nuova versione del container
-    #  ansible.builtin.command: >
-     #   docker run -d --name myapp -p 8080:80 {{ image }}
     - name: Avvia nuova versione del container con SSH
       ansible.builtin.command: >
-        docker run -d --name myapp
+        docker run -d --name my-container
         -p 8080:80
         -p 2222:22
         --restart unless-stopped
-        {{ image }}
+        {{ image }} /usr/sbin/sshd -D
+
