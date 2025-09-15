@@ -9,6 +9,10 @@ RUN apt-get update && \
 RUN apt-get update && \
     apt-get install -y netcat-openbsd && \
     apt-get clean
+#installa sudo
+RUN apt-get update && \
+    apt-get install -y sudo && \
+    apt-get clean
 
 # Aggiungi utente jenkins al gruppo docker
 #RUN groupadd -g 1 dockermac && usermod -aG dockermac jenkins

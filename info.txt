@@ -1,0 +1,9 @@
+docker rm -f agent1                                                                              
+docker run -d \
+  --name agent1 \
+  -u root \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  jenkins-agent:custom \
+  -url http://host.docker.internal:9090 \
+  -secret 4cc18731e974198be8a18fb017b6906fa2c3aa5daacd25f614400124f8cb07d2 \
+  -name agent1
