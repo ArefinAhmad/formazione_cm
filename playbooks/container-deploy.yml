@@ -17,6 +17,12 @@
       ansible.builtin.command: docker rm -f myapp
       ignore_errors: yes
 
-    - name: Avvia nuova versione del container
+   # - name: Avvia nuova versione del container
+    #  ansible.builtin.command: >
+     #   docker run -d --name myapp -p 8080:80 {{ image }}
+    - name: Avvia nuova versione del container con SSH
       ansible.builtin.command: >
-        docker run -d --name myapp -p 8080:80 {{ image }}
+        docker run -d --name myapp
+        -p 8080:80
+        -p 2222:22
+        {{ image }}
