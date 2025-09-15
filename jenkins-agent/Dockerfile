@@ -24,9 +24,8 @@ RUN curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | b
 
 # installa ansible
 RUN apt-get update && \
-    apt-get install -y software-properties-common && \
-    apt-add-repository --yes --update ppa:ansible/ansible && \
     apt-get install -y ansible && \
     rm -rf /var/lib/apt/lists/*
+
 USER jenkins
 # 4cc18731e974198be8a18fb017b6906fa2c3aa5daacd25f614400124f8cb07d2
