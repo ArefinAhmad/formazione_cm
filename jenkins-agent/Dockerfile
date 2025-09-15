@@ -7,6 +7,9 @@ RUN apt-get update && \
     apt-get install -y docker.io curl && \
     rm -rf /var/lib/apt/lists/*
 
+# Aggiungi utente jenkins al gruppo docker
+RUN groupadd -f docker && usermod -aG docker jenkins
+
 # Installa kubectl
 ENV KUBECTL_VERSION=v1.32.0
 RUN curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" && \
