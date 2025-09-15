@@ -5,7 +5,10 @@ USER root
 RUN apt-get update && \
     apt-get install -y docker.io && \
     apt-get clean
-
+#installa netcat-openbsd
+RUN apt-get update && \
+    apt-get install -y netcat-openbsd && \
+    apt-get clean
 
 # Aggiungi utente jenkins al gruppo docker
 #RUN groupadd -g 1 dockermac && usermod -aG dockermac jenkins
