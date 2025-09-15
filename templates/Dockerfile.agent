@@ -14,6 +14,10 @@ RUN mkdir -p /run/sshd
 RUN useradd -ms /bin/bash deployer \
     && echo 'deployer ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
+
+#installa docker cli 
+RUN apt-get update && apt-get install -y docker-cli
+
 # Setup SSH for deployer
 RUN mkdir -p /home/deployer/.ssh && \
     chown deployer:deployer /home/deployer/.ssh && \
