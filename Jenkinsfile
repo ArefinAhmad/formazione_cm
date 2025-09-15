@@ -3,7 +3,7 @@ pipeline {
     environment {
         registry = "host.docker.internal:5000" // Docker registry locale
         imageName = "myapp"                    // nome dell'immagine
-        WORKDIR = "formazione_cm"              // cartella del progetto
+        WORKDIR = "."              // cartella del progetto
         DOCKERFILE = "templates/Dockerfile.agent"
     }
     stages {
