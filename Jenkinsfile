@@ -32,13 +32,7 @@ pipeline {
                 """
             }
         }
-        stage('Verify SSH') {
-            steps {
-                sh """
-            timeout 5 bash -c 'cat < /dev/null > /dev/tcp/127.0.0.1/2222'
-        """
-            }
-        }
+        
         stage('Deploy with Ansible') {
             steps {
                 sh """
@@ -46,6 +40,13 @@ pipeline {
                     -e image=${registry}/${imageName}:${BUILD_NUMBER} \
                     --private-key ${TARGET_SSH_KEY}
                 """
+            }
+        }
+        stage('Verify SSH') {
+            steps {
+                sh """
+            timeout 5 bash -c 'cat < /dev/null > /dev/tcp/127.0.0.1/2222'
+        """
             }
         }
     }
